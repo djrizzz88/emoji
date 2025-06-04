@@ -1,0 +1,1004 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secret Emoji Messenger</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+        
+        body.dark-mode {
+            --primary-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+        
+        .emoji-bg {
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .dark-mode .emoji-bg {
+            background-color: rgba(30, 41, 59, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .tab-active {
+            background-color: rgba(255, 255, 255, 0.25);
+            border-bottom: 3px solid #fff;
+        }
+        
+        .dark-mode .tab-active {
+            background-color: rgba(30, 41, 59, 0.6);
+            border-bottom: 3px solid #94a3b8;
+        }
+        
+        .custom-shadow {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dark-mode .custom-shadow {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .lock-animation {
+            animation: wiggle 1s ease-in-out;
+        }
+        
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(0); }
+            20% { transform: rotate(-10deg); }
+            40% { transform: rotate(10deg); }
+            60% { transform: rotate(-5deg); }
+            80% { transform: rotate(5deg); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .history-item {
+            transition: all 0.2s ease;
+        }
+        
+        .history-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .tooltip {
+            position: relative;
+        }
+        
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 120px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Password strength meter */
+        .password-strength-meter {
+            height: 5px;
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 3px;
+            margin-top: 5px;
+        }
+        
+        .password-strength-meter div {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease-in-out;
+        }
+        
+        .strength-weak {
+            width: 33.3%;
+            background-color: #f87171;
+        }
+        
+        .strength-medium {
+            width: 66.6%;
+            background-color: #fbbf24;
+        }
+        
+        .strength-strong {
+            width: 100%;
+            background-color: #34d399;
+        }
+        
+        /* Ad placeholders */
+        .ad-placeholder {
+            background: linear-gradient(45deg, #f3f4f6 25%, #e5e7eb 25%, #e5e7eb 50%, #f3f4f6 50%, #f3f4f6 75%, #e5e7eb 75%);
+            background-size: 20px 20px;
+            border: 2px dashed #d1d5db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            font-weight: 500;
+            text-align: center;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .dark-mode .ad-placeholder {
+            background: linear-gradient(45deg, #1f2937 25%, #111827 25%, #111827 50%, #1f2937 50%, #1f2937 75%, #111827 75%);
+            border-color: #4b5563;
+            color: #9ca3af;
+        }
+    </style>
+</head>
+<body class="p-0 m-0">
+    <!-- Header Ad -->
+    <div class="w-full h-24 ad-placeholder">
+        <div>
+            <i class="fas fa-ad text-2xl mb-1"></i>
+            <p>Advertisement Banner</p>
+        </div>
+    </div>
+    
+    <div class="flex min-h-screen">
+        <!-- Left Side Ad -->
+        <div class="hidden lg:block lg:w-48 xl:w-64 ad-placeholder">
+            <div>
+                <i class="fas fa-ad text-2xl mb-1"></i>
+                <p>Sidebar Ad</p>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="flex-1 p-4">
+            <div class="container mx-auto max-w-4xl py-8">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 class="text-4xl md:text-5xl font-bold text-white mb-2">Secret Emoji Messenger</h1>
+                        <p class="text-white text-opacity-80 text-lg">Convert text to emoji for secret conversations!</p>
+                    </div>
+                    <div>
+                        <button id="darkModeToggle" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-3 rounded-full transition-all duration-300">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-6 custom-shadow">
+                    <!-- Tabs -->
+                    <div class="flex mb-6 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
+                        <button id="encodeTab" class="tab-active px-6 py-3 rounded-t-lg text-lg font-medium flex-1 transition-all duration-300 whitespace-nowrap">
+                            <span class="mr-2">🔒</span> Text to Emoji
+                        </button>
+                        <button id="decodeTab" class="px-6 py-3 rounded-t-lg text-lg font-medium text-gray-600 dark:text-gray-300 flex-1 transition-all duration-300 whitespace-nowrap">
+                            <span class="mr-2">🔓</span> Emoji to Text
+                        </button>
+                        <button id="historyTab" class="px-6 py-3 rounded-t-lg text-lg font-medium text-gray-600 dark:text-gray-300 flex-1 transition-all duration-300 whitespace-nowrap">
+                            <span class="mr-2">📜</span> History
+                        </button>
+                        <button id="aboutTab" class="px-6 py-3 rounded-t-lg text-lg font-medium text-gray-600 dark:text-gray-300 flex-1 transition-all duration-300 whitespace-nowrap">
+                            <span class="mr-2">ℹ️</span> How It Works
+                        </button>
+                    </div>
+                    
+                    <!-- Encode Section -->
+                    <div id="encodeSection" class="space-y-6">
+                        <!-- Password Option -->
+                        <div class="flex items-center justify-center mb-2">
+                            <input type="checkbox" id="usePasswordCheckbox" class="w-5 h-5 text-purple-600 rounded focus:ring-purple-500">
+                            <label for="usePasswordCheckbox" class="ml-2 text-gray-700 dark:text-gray-200">Use password protection</label>
+                        </div>
+                        
+                        <!-- Password Input (conditionally shown) -->
+                        <div id="passwordInputArea" class="hidden">
+                            <div class="bg-purple-50 dark:bg-gray-700 border border-purple-200 dark:border-purple-800 rounded-lg p-4 mb-4">
+                                <div class="flex items-center mb-2">
+                                    <svg class="w-5 h-5 text-purple-600 dark:text-purple-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span class="font-medium text-purple-800 dark:text-purple-300">Password Protection</span>
+                                </div>
+                                <p class="text-sm text-purple-700 dark:text-purple-300 mb-3">
+                                    Add a password that will be required to decode this message. Only share this password with your intended recipient.
+                                </p>
+                                <input type="password" id="messagePassword" class="w-full p-3 border border-purple-300 dark:border-purple-600 dark:bg-gray-800 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Enter password for this message">
+                                
+                                <!-- Password strength meter -->
+                                <div class="mt-2">
+                                    <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
+                                        <span>Password strength:</span>
+                                        <span id="passwordStrengthText">None</span>
+                                    </div>
+                                    <div class="password-strength-meter">
+                                        <div id="passwordStrengthBar"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Input Area -->
+                        <div>
+                            <label for="inputText" class="block text-lg font-medium text-gray-700 dark:text-gray-200 mb-2" id="inputLabel">Enter your text:</label>
+                            <textarea id="inputText" class="w-full h-32 p-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none" placeholder="Type your message here..."></textarea>
+                        </div>
+                        
+                        <!-- Action Button -->
+                        <div class="text-center">
+                            <button id="convertBtn" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-3 rounded-lg font-medium text-lg transition-all duration-300 pulse-animation">
+                                Convert to Emoji
+                            </button>
+                        </div>
+                        
+                        <!-- Output Area -->
+                        <div>
+                            <label for="outputText" class="block text-lg font-medium text-gray-700 dark:text-gray-200 mb-2" id="outputLabel">Emoji message:</label>
+                            <div class="relative">
+                                <textarea id="outputText" class="w-full h-32 p-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-lg bg-gray-50 dark:bg-gray-900 resize-none" placeholder="Your converted message will appear here..." readonly></textarea>
+                                <div class="absolute right-3 bottom-3 flex space-x-2">
+                                    <button id="copyBtn" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 flex items-center">
+                                        <i class="far fa-copy mr-1"></i> Copy
+                                    </button>
+                                    <button id="shareBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 flex items-center">
+                                        <i class="fas fa-share-alt mr-1"></i> Share
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Decode Section -->
+                    <div id="decodeSection" class="space-y-6 hidden">
+                        <!-- Password Input for Decoding -->
+                        <div id="decodePasswordArea">
+                            <div class="bg-blue-50 dark:bg-gray-700 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
+                                <div class="flex items-center mb-2">
+                                    <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                    </svg>
+                                    <span class="font-medium text-blue-800 dark:text-blue-300">Password (if required)</span>
+                                </div>
+                                <p class="text-sm text-blue-700 dark:text-blue-300 mb-3">
+                                    If this message was protected with a password, enter it here. Otherwise, leave this field empty.
+                                </p>
+                                <input type="password" id="decodePassword" class="w-full p-3 border border-blue-300 dark:border-blue-600 dark:bg-gray-800 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter password (if needed)">
+                            </div>
+                        </div>
+                        
+                        <!-- Input Area -->
+                        <div>
+                            <label for="decodeInputText" class="block text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">Enter emoji message:</label>
+                            <textarea id="decodeInputText" class="w-full h-32 p-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" placeholder="Paste the emoji message here..."></textarea>
+                        </div>
+                        
+                        <!-- Action Button -->
+                        <div class="text-center">
+                            <button id="decodeBtn" class="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white px-8 py-3 rounded-lg font-medium text-lg transition-all duration-300">
+                                Decode Message
+                            </button>
+                        </div>
+                        
+                        <!-- Output Area -->
+                        <div>
+                            <label for="decodeOutputText" class="block text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">Decoded message:</label>
+                            <div class="relative">
+                                <textarea id="decodeOutputText" class="w-full h-32 p-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-lg bg-gray-50 dark:bg-gray-900 resize-none" placeholder="Your decoded message will appear here..." readonly></textarea>
+                                <div class="absolute right-3 bottom-3">
+                                    <button id="decodeCopyBtn" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 flex items-center">
+                                        <i class="far fa-copy mr-1"></i> Copy
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- History Section -->
+                    <div id="historySection" class="space-y-6 hidden">
+                        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+                            <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-100">Message History</h2>
+                            
+                            <div id="historyList" class="space-y-4">
+                                <!-- History items will be added here dynamically -->
+                                <div class="text-center text-gray-500 dark:text-gray-400 py-8" id="noHistoryMessage">
+                                    <svg class="w-12 h-12 mx-auto text-gray-400 dark:text-gray-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <p>No message history yet</p>
+                                    <p class="text-sm mt-2">Your recent messages will appear here</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 flex justify-center">
+                                <button id="clearHistoryBtn" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300 flex items-center">
+                                    <i class="fas fa-trash-alt mr-2"></i> Clear History
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- About Section -->
+                    <div id="aboutSection" class="space-y-6 hidden">
+                        <div class="emoji-bg rounded-lg p-6">
+                            <h2 class="text-2xl font-bold mb-4 text-purple-800 dark:text-purple-300">How Secret Emoji Messenger Works</h2>
+                            <p class="mb-4 dark:text-gray-200">This app uses a simple substitution cipher to convert your text messages into emoji sequences.</p>
+                            
+                            <h3 class="text-xl font-semibold mb-2 text-purple-700 dark:text-purple-400">Text to Emoji:</h3>
+                            <p class="mb-4 dark:text-gray-200">Each letter, number, and common symbol is mapped to a specific emoji. For example, "hello" might become "🤣😊😙😙😍".</p>
+                            
+                            <h3 class="text-xl font-semibold mb-2 text-purple-700 dark:text-purple-400">Password Protection:</h3>
+                            <p class="mb-4 dark:text-gray-200">When you enable password protection, your message gets an extra layer of encryption. The emoji mapping is scrambled based on your password, so only someone with the correct password can decode it.</p>
+                            
+                            <div class="bg-yellow-100 dark:bg-yellow-900 border-l-4 border-yellow-500 p-4 rounded">
+                                <p class="text-yellow-700 dark:text-yellow-200">
+                                    <span class="font-bold">Note:</span> While this adds a fun layer of privacy to your messages, it's not enterprise-grade encryption. Don't use it for truly sensitive information!
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <h3 class="text-xl font-semibold mb-4 dark:text-gray-200">Ready to create your secret message?</h3>
+                            <button id="backToEncoderBtn" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-3 rounded-lg font-medium text-lg transition-all duration-300">
+                                Start Encoding
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-6 text-white text-opacity-70">
+                    <p>Designed By Rizwan With Love 🌹</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Side Ad -->
+        <div class="hidden lg:block lg:w-48 xl:w-64 ad-placeholder">
+            <div>
+                <i class="fas fa-ad text-2xl mb-1"></i>
+                <p>Sidebar Ad</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer Ad -->
+    <div class="w-full h-24 ad-placeholder">
+        <div>
+            <i class="fas fa-ad text-2xl mb-1"></i>
+            <p>Advertisement Banner</p>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const encodeTab = document.getElementById('encodeTab');
+        const decodeTab = document.getElementById('decodeTab');
+        const historyTab = document.getElementById('historyTab');
+        const aboutTab = document.getElementById('aboutTab');
+        const encodeSection = document.getElementById('encodeSection');
+        const decodeSection = document.getElementById('decodeSection');
+        const historySection = document.getElementById('historySection');
+        const aboutSection = document.getElementById('aboutSection');
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+        const decodeInputText = document.getElementById('decodeInputText');
+        const decodeOutputText = document.getElementById('decodeOutputText');
+        const convertBtn = document.getElementById('convertBtn');
+        const decodeBtn = document.getElementById('decodeBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const decodeCopyBtn = document.getElementById('decodeCopyBtn');
+        const shareBtn = document.getElementById('shareBtn');
+        const backToEncoderBtn = document.getElementById('backToEncoderBtn');
+        const usePasswordCheckbox = document.getElementById('usePasswordCheckbox');
+        const passwordInputArea = document.getElementById('passwordInputArea');
+        const messagePassword = document.getElementById('messagePassword');
+        const decodePassword = document.getElementById('decodePassword');
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const historyList = document.getElementById('historyList');
+        const noHistoryMessage = document.getElementById('noHistoryMessage');
+        const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+        const passwordStrengthBar = document.getElementById('passwordStrengthBar');
+        const passwordStrengthText = document.getElementById('passwordStrengthText');
+        
+        // State
+        let messageHistory = [];
+        
+        // Emoji mapping
+        const emojiMap = {
+            'a': '😀', 'b': '😃', 'c': '😄', 'd': '😁', 'e': '😆',
+            'f': '😅', 'g': '😂', 'h': '🤣', 'i': '😊', 'j': '😇',
+            'k': '🙂', 'l': '🙃', 'm': '😉', 'n': '😌', 'o': '😍',
+            'p': '🥰', 'q': '😘', 'r': '😗', 's': '😙', 't': '😚',
+            'u': '😋', 'v': '😛', 'w': '😝', 'x': '😜', 'y': '🤪',
+            'z': '😎',
+            'A': '🤩', 'B': '🥳', 'C': '😏', 'D': '😒', 'E': '😞',
+            'F': '😔', 'G': '😟', 'H': '😕', 'I': '🙁', 'J': '☹️',
+            'K': '😣', 'L': '😖', 'M': '😫', 'N': '😩', 'O': '🥺',
+            'P': '😢', 'Q': '😭', 'R': '😤', 'S': '😠', 'T': '😡',
+            'U': '🤬', 'V': '🤯', 'W': '😳', 'X': '🥵', 'Y': '🥶',
+            'Z': '😱',
+            '0': '🌈', '1': '⭐', '2': '🌟', '3': '✨', '4': '💫',
+            '5': '🌙', '6': '☀️', '7': '🌤️', '8': '⛅', '9': '🌥️',
+            ' ': '🌴', '.': '🌵', ',': '🌱', '!': '🌿', '?': '☘️',
+            '@': '🍀', '#': '🌾', '$': '🌻', '%': '🌼', '^': '🌷',
+            '&': '🌹', '*': '🌺', '(': '🌸', ')': '🏵️', '-': '🌞',
+            '_': '🌝', '+': '🌚', '=': '🌛', '[': '🌜', ']': '🌖',
+            '{': '🌗', '}': '🌘', '|': '🌑', '\\': '🌒', '/': '🌓',
+            ':': '🌔', ';': '🌕', '"': '🌍', "'": '🌎', '<': '🌏',
+            '>': '🌐', '~': '🌋', '`': '🌄'
+        };
+        
+        // Create reverse mapping for decoding
+        const reverseEmojiMap = {};
+        for (const [key, value] of Object.entries(emojiMap)) {
+            reverseEmojiMap[value] = key;
+        }
+        
+        // Initialize the app
+        function init() {
+            // Load dark mode preference
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+                document.documentElement.classList.add('dark');
+                darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+            
+            // Load message history
+            loadHistory();
+            
+            // Set up event listeners
+            setupEventListeners();
+        }
+        
+        // Set up all event listeners
+        function setupEventListeners() {
+            // Tab switching
+            encodeTab.addEventListener('click', () => switchTab('encode'));
+            decodeTab.addEventListener('click', () => switchTab('decode'));
+            historyTab.addEventListener('click', () => switchTab('history'));
+            aboutTab.addEventListener('click', () => switchTab('about'));
+            backToEncoderBtn.addEventListener('click', () => switchTab('encode'));
+            
+            // Password checkbox toggle
+            usePasswordCheckbox.addEventListener('change', togglePasswordInput);
+            
+            // Password strength meter
+            messagePassword.addEventListener('input', updatePasswordStrength);
+            
+            // Convert button
+            convertBtn.addEventListener('click', convertText);
+            
+            // Decode button
+            decodeBtn.addEventListener('click', decodeText);
+            
+            // Copy buttons
+            copyBtn.addEventListener('click', () => copyToClipboard(outputText, copyBtn));
+            decodeCopyBtn.addEventListener('click', () => copyToClipboard(decodeOutputText, decodeCopyBtn));
+            
+            // Share button
+            shareBtn.addEventListener('click', shareMessage);
+            
+            // Clear history button
+            clearHistoryBtn.addEventListener('click', clearHistory);
+            
+            // Dark mode toggle
+            darkModeToggle.addEventListener('click', toggleDarkMode);
+        }
+        
+        // Switch between tabs
+        function switchTab(tab) {
+            // Remove active class from all tabs
+            encodeTab.classList.remove('tab-active');
+            decodeTab.classList.remove('tab-active');
+            historyTab.classList.remove('tab-active');
+            aboutTab.classList.remove('tab-active');
+            
+            // Hide all sections
+            encodeSection.classList.add('hidden');
+            decodeSection.classList.add('hidden');
+            historySection.classList.add('hidden');
+            aboutSection.classList.add('hidden');
+            
+            // Activate selected tab and show corresponding section
+            switch (tab) {
+                case 'encode':
+                    encodeTab.classList.add('tab-active');
+                    encodeSection.classList.remove('hidden');
+                    break;
+                case 'decode':
+                    decodeTab.classList.add('tab-active');
+                    decodeSection.classList.remove('hidden');
+                    break;
+                case 'history':
+                    historyTab.classList.add('tab-active');
+                    historySection.classList.remove('hidden');
+                    // Refresh history display
+                    displayHistory();
+                    break;
+                case 'about':
+                    aboutTab.classList.add('tab-active');
+                    aboutSection.classList.remove('hidden');
+                    break;
+            }
+        }
+        
+        // Toggle password input area
+        function togglePasswordInput() {
+            if (usePasswordCheckbox.checked) {
+                passwordInputArea.classList.remove('hidden');
+                passwordInputArea.classList.add('fade-in');
+            } else {
+                passwordInputArea.classList.add('hidden');
+            }
+        }
+        
+        // Update password strength meter
+        function updatePasswordStrength() {
+            const password = messagePassword.value;
+            let strength = 0;
+            let feedback = 'None';
+            
+            if (password.length > 0) {
+                // Length check
+                if (password.length > 7) {
+                    strength += 1;
+                }
+                
+                // Complexity checks
+                if (/[A-Z]/.test(password)) strength += 0.5;
+                if (/[0-9]/.test(password)) strength += 0.5;
+                if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+                
+                // Set feedback and visual indicator
+                if (strength < 1) {
+                    feedback = 'Weak';
+                    passwordStrengthBar.className = 'strength-weak';
+                } else if (strength < 2) {
+                    feedback = 'Medium';
+                    passwordStrengthBar.className = 'strength-medium';
+                } else {
+                    feedback = 'Strong';
+                    passwordStrengthBar.className = 'strength-strong';
+                }
+            } else {
+                passwordStrengthBar.className = '';
+            }
+            
+            passwordStrengthText.textContent = feedback;
+        }
+        
+        // Generate a seed from password for consistent scrambling
+        function getPasswordSeed(password) {
+            let seed = 0;
+            for (let i = 0; i < password.length; i++) {
+                seed += password.charCodeAt(i);
+            }
+            return seed;
+        }
+        
+        // Create a scrambled emoji map based on password
+        function getScrambledEmojiMap(password) {
+            if (!password) return emojiMap;
+            
+            // Create a copy of the emoji map
+            const scrambledMap = {...emojiMap};
+            
+            // Get all emoji values
+            const emojis = Object.values(emojiMap);
+            
+            // Shuffle the emojis based on password
+            const seed = getPasswordSeed(password);
+            const shuffledEmojis = shuffleArray(emojis, seed);
+            
+            // Reassign emojis to keys
+            let i = 0;
+            for (const key in scrambledMap) {
+                scrambledMap[key] = shuffledEmojis[i];
+                i++;
+            }
+            
+            return scrambledMap;
+        }
+        
+        // Fisher-Yates shuffle with seed
+        function shuffleArray(array, seed) {
+            const newArray = [...array];
+            let currentSeed = seed;
+            
+            for (let i = newArray.length - 1; i > 0; i--) {
+                // Generate a random index based on the seed
+                currentSeed = (currentSeed * 9301 + 49297) % 233280;
+                const j = Math.floor((currentSeed / 233280) * (i + 1));
+                
+                // Swap elements
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            
+            return newArray;
+        }
+        
+        // Convert text to emoji using the provided map
+        function textToEmoji(text, emojiMapToUse) {
+            let result = '';
+            
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                result += emojiMapToUse[char] || char; // Use the mapped emoji or keep original character
+            }
+            
+            return result;
+        }
+        
+        // Convert emoji to text using the provided reverse map
+        function emojiToText(emojiText, reverseMap) {
+            let result = '';
+            let i = 0;
+            
+            while (i < emojiText.length) {
+                // Check if this is an emoji (which can be multiple characters)
+                let found = false;
+                
+                // Try to match emojis (which can be up to 7 characters in JS)
+                for (let len = Math.min(7, emojiText.length - i); len > 0; len--) {
+                    const possibleEmoji = emojiText.substring(i, i + len);
+                    if (reverseMap[possibleEmoji]) {
+                        result += reverseMap[possibleEmoji];
+                        i += len;
+                        found = true;
+                        break;
+                    }
+                }
+                
+                // If no emoji match, keep the character as is
+                if (!found) {
+                    result += emojiText[i];
+                    i++;
+                }
+            }
+            
+            return result;
+        }
+        
+        // Convert text based on current mode
+        function convertText() {
+            const input = inputText.value;
+            
+            if (input.trim() === '') {
+                outputText.value = 'Please enter some text to convert!';
+                return;
+            }
+            
+            // If password protection is enabled
+            if (usePasswordCheckbox.checked && messagePassword.value) {
+                // Get scrambled emoji map based on password
+                const scrambledMap = getScrambledEmojiMap(messagePassword.value);
+                
+                // Convert text to emoji using scrambled map
+                const emojiText = textToEmoji(input, scrambledMap);
+                
+                // Add lock emoji prefix to indicate password protection
+                outputText.value = `🔐${emojiText}`;
+            } else {
+                // No password, use standard emoji map
+                outputText.value = textToEmoji(input, emojiMap);
+            }
+            
+            // Add to history
+            addToHistory(input, outputText.value);
+            
+            // Show success animation
+            convertBtn.classList.add('lock-animation');
+            setTimeout(() => {
+                convertBtn.classList.remove('lock-animation');
+            }, 1000);
+        }
+        
+        // Decode emoji text
+        function decodeText() {
+            const input = decodeInputText.value;
+            
+            if (input.trim() === '') {
+                decodeOutputText.value = 'Please enter some emoji to decode!';
+                return;
+            }
+            
+            // Check if message is password protected
+            const isPasswordProtected = input.startsWith('🔐');
+            
+            if (isPasswordProtected) {
+                // Remove the lock emoji prefix
+                const emojiText = input.substring(1);
+                
+                // Check if password is provided
+                if (!decodePassword.value) {
+                    decodeOutputText.value = 'This message is password protected. Please enter the password.';
+                    return;
+                }
+                
+                // Get scrambled emoji map based on password
+                const scrambledMap = getScrambledEmojiMap(decodePassword.value);
+                
+                // Create reverse map for decoding
+                const reverseScrambledMap = {};
+                for (const [key, value] of Object.entries(scrambledMap)) {
+                    reverseScrambledMap[value] = key;
+                }
+                
+                // Decode using the reverse scrambled map
+                const decodedText = emojiToText(emojiText, reverseScrambledMap);
+                decodeOutputText.value = decodedText;
+            } else {
+                // No password protection, use standard reverse map
+                decodeOutputText.value = emojiToText(input, reverseEmojiMap);
+            }
+            
+            // Show success animation
+            decodeBtn.classList.add('lock-animation');
+            setTimeout(() => {
+                decodeBtn.classList.remove('lock-animation');
+            }, 1000);
+        }
+        
+        // Copy text to clipboard
+        function copyToClipboard(element, button) {
+            element.select();
+            document.execCommand('copy');
+            
+            // Show feedback
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check mr-1"></i> Copied!';
+            button.classList.add('bg-green-500', 'text-white');
+            button.classList.remove('bg-gray-200', 'hover:bg-gray-300', 'text-gray-700', 'dark:bg-gray-700', 'dark:hover:bg-gray-600', 'dark:text-gray-200');
+            
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.classList.remove('bg-green-500', 'text-white');
+                button.classList.add('bg-gray-200', 'hover:bg-gray-300', 'text-gray-700', 'dark:bg-gray-700', 'dark:hover:bg-gray-600', 'dark:text-gray-200');
+            }, 2000);
+        }
+        
+        // Share message using Web Share API if available
+        function shareMessage() {
+            const text = outputText.value;
+            
+            if (!text) {
+                alert('Please convert a message first!');
+                return;
+            }
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Secret Emoji Message',
+                    text: text
+                })
+                .catch(error => {
+                    console.log('Error sharing:', error);
+                });
+            } else {
+                // Fallback to copy
+                copyToClipboard(outputText, shareBtn);
+            }
+        }
+        
+        // Add message to history
+        function addToHistory(input, output) {
+            const timestamp = new Date().toISOString();
+            const historyItem = {
+                timestamp,
+                input: input.substring(0, 50) + (input.length > 50 ? '...' : ''),
+                output: output.substring(0, 50) + (output.length > 50 ? '...' : ''),
+                fullInput: input,
+                fullOutput: output
+            };
+            
+            // Add to beginning of array
+            messageHistory.unshift(historyItem);
+            
+            // Keep only the last 10 items
+            if (messageHistory.length > 10) {
+                messageHistory = messageHistory.slice(0, 10);
+            }
+            
+            // Save to local storage
+            saveHistory();
+        }
+        
+        // Save history to local storage
+        function saveHistory() {
+            localStorage.setItem('emojiMessageHistory', JSON.stringify(messageHistory));
+        }
+        
+        // Load history from local storage
+        function loadHistory() {
+            const saved = localStorage.getItem('emojiMessageHistory');
+            if (saved) {
+                try {
+                    messageHistory = JSON.parse(saved);
+                    displayHistory();
+                } catch (e) {
+                    console.error("Error loading history:", e);
+                    messageHistory = [];
+                }
+            }
+        }
+        
+        // Display history items
+        function displayHistory() {
+            if (messageHistory.length === 0) {
+                noHistoryMessage.classList.remove('hidden');
+                return;
+            }
+            
+            noHistoryMessage.classList.add('hidden');
+            
+            // Clear current list
+            while (historyList.firstChild && historyList.firstChild !== noHistoryMessage) {
+                historyList.removeChild(historyList.firstChild);
+            }
+            
+            // Add history items
+            messageHistory.forEach((item, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-300';
+                
+                const date = new Date(item.timestamp);
+                const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+                
+                historyItem.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">${formattedDate}</span>
+                        <div class="flex space-x-2">
+                            <button class="history-load-btn text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm" data-index="${index}" data-mode="encode">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="history-decode-btn text-green-500 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 text-sm" data-index="${index}">
+                                <i class="fas fa-unlock"></i> Decode
+                            </button>
+                            <button class="history-delete-btn text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-sm" data-index="${index}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Input:</div>
+                        <div class="text-gray-800 dark:text-gray-200">${item.input}</div>
+                    </div>
+                    <div>
+                        <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Output:</div>
+                        <div class="text-gray-800 dark:text-gray-200">${item.output}</div>
+                    </div>
+                `;
+                
+                historyList.appendChild(historyItem);
+                
+                // Add event listeners to the buttons
+                historyItem.querySelector('.history-load-btn').addEventListener('click', () => {
+                    loadHistoryItem(index, 'encode');
+                });
+                
+                historyItem.querySelector('.history-decode-btn').addEventListener('click', () => {
+                    loadHistoryItem(index, 'decode');
+                });
+                
+                historyItem.querySelector('.history-delete-btn').addEventListener('click', () => {
+                    deleteHistoryItem(index);
+                });
+            });
+        }
+        
+        // Load a history item
+        function loadHistoryItem(index, mode) {
+            const item = messageHistory[index];
+            
+            if (mode === 'encode') {
+                // Switch to encode tab
+                switchTab('encode');
+                
+                // Load the input text
+                inputText.value = item.fullInput;
+                
+                // Check if it was password protected
+                if (item.fullOutput.startsWith('🔐')) {
+                    usePasswordCheckbox.checked = true;
+                    togglePasswordInput();
+                } else {
+                    usePasswordCheckbox.checked = false;
+                    togglePasswordInput();
+                }
+            } else {
+                // Switch to decode tab
+                switchTab('decode');
+                
+                // Load the output text for decoding
+                decodeInputText.value = item.fullOutput;
+                
+                // Clear any previous output
+                decodeOutputText.value = '';
+                
+                // If password protected, focus on password field
+                if (item.fullOutput.startsWith('🔐')) {
+                    decodePassword.focus();
+                }
+            }
+        }
+        
+        // Delete a history item
+        function deleteHistoryItem(index) {
+            messageHistory.splice(index, 1);
+            saveHistory();
+            displayHistory();
+        }
+        
+        // Clear all history
+        function clearHistory() {
+            if (confirm('Are you sure you want to clear all message history?')) {
+                messageHistory = [];
+                saveHistory();
+                displayHistory();
+            }
+        }
+        
+        // Toggle dark mode
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            document.documentElement.classList.toggle('dark');
+            
+            if (document.body.classList.contains('dark-mode')) {
+                darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                localStorage.setItem('darkMode', 'true');
+            } else {
+                darkModeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                localStorage.setItem('darkMode', 'false');
+            }
+        }
+        
+        // Initialize the app
+        init();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'94a99d1750019431',t:'MTc0OTA2MzAwMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
